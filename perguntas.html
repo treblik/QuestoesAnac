@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudo ANAC - Carrossel de Flashcards</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #003366;
+            --accent: #e67e22;
+            --bg-body: #f0f2f5;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Segoe UI', sans-serif;
+            padding-top: 50px;
+        }
+
+        /* Ajuste do Card para o Carrossel */
+        .carousel-item {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: 2px solid var(--primary);
+        }
+
+        .flashcard:hover {
+            transform: scale(1.02);
+        }
+
+        .question-text {
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .answer-text {
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-top: 20px;
+            display: none; /* Escondido inicialmente */
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        /* Estilo dos Controles */
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: var(--primary);
+            border-radius: 50%;
+            padding: 20px;
+        }
+
+        .hint {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        h1 { color: var(--primary); font-weight: 800; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container text-center">
+    <h1>PROVA TÉCNICA AZUL</h1>
+
+    <div id="flashcardCarousel" class="carousel slide" data-bs-interval="false">
+        <div class="carousel-inner" id="carousel-items-container">
+            </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#flashcardCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#flashcardCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Próximo</span>
+        </button>
+    </div>
+
+    <p class="hint">Clique no cartão para revelar a resposta</p>
+    <a href="index.html" class="btn btn-outline-secondary mt-4">Voltar para Simulados</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Banco de Dados de Exemplo
+    const flashcards = [
+        
+        { q: "O que é Tuck Under?", a: "Tendência de picar em alta performance devido ao deslocamento do CP para trás e redução do downwash na cauda. Corrigido pelo Mach Trim." },
+        { q: "O que é Efeito Solo?", a: "Aumento da sustentação e redução do arrasto induzido quando a aeronave voa próxima à superfície (aproximadamente a altura de uma envergadura)." },
+        { q: "O que é Guinada Adversa?", a: "Tendência da aeronave de guinar para o lado oposto ao da curva, causada pelo maior arrasto da asa que sobe (aileron defletido para baixo)." },
+        { q: "O que define o Coffin Corner?", a: "Ponto onde o pré-estol de alta velocidade (mach) coincide com o de baixa velocidade. Qualquer variação de velocidade resulta em estol/buffet." },
+        { q: "O que é o fenômeno Roll Off?", a: "Em velocidades próximas à MMo, o uso de pedais acelera a asa externa ao fluxo supersônico, rompendo a camada limite e fazendo a asa descer em vez de subir." },
+        { q: "O que é Drift Down?", a: "Manobra de descida em regime MCT após falha de motor, visando atingir uma altitude que permita o voo nivelado com o motor remanescente." },
+        { q: "Por que manter MCT (Máxima Contínua) no Drift Down?", a: "É a tração que gera a melhor razão L/D (sustentação/arrasto) sem comprometer a vida útil do motor." },
+        { q: "O que é a Green Dot?", a: "Velocidade de melhor razão entre sustentação e arrasto (L/D) indicada para planeio ou execução de Drift Down." },
+        { q: "Quais os gradientes de Drift Down para bimotores, trimotores e quadrimotores?", a: "1,1% para bimotores; 1,4% para trimotores; 1,6% para quadrimotores." },
+        { q: "Diferença entre NET e GROSS flight path?", a: "NET é a trajetória mínima certificada (planejamento) que garante separação de obstáculos. GROSS é a trajetória real acrescida de margem de segurança." },
+        { q: "O que é Reclearance?", a: "Técnica de planeio com ponto intermediário (RIF) para reduzir a reserva regulamentar de 10% do tempo total, evitando penalizar o payload em voos longos." },
+        { q: "Diferença entre IAS, CAS, EAS e TAS?", a: "IAS: indicada; CAS: corrigida p/ instrumentos/posição; EAS: corrigida p/ compressibilidade; TAS: corrigida p/ densidade." },
+        { q: "Qual a sequência de pesos da aeronave (da fábrica ao pouso)?", a: "MEW -> BEW -> BOW (operacional pronto) -> ZFW (c/ payload) -> Ramp Weight -> TOW (decolagem) -> LW (pouso)." },
+        { q: "O que é o MZFW?", a: "Peso máximo sem combustível. Visa proteger a estrutura da asa contra o momento de flexão (bending moment) causado pela sustentação." },
+        { q: "Quais os efeitos de um CG Dianteiro?", a: "Maior estabilidade, menor controlabilidade, maior arrasto (maior gasto de combustível) e maior velocidade de estol." },
+        { q: "Quais os efeitos de um CG Traseiro?", a: "Menor estabilidade, maior controlabilidade, menor arrasto (mais econômico) e menor velocidade de estol." },
+        { q: "Qual o efeito da posição do CG na velocidade de estol?", a: "CG dianteiro aumenta a velocidade de estol. CG traseiro diminui a velocidade de estol." },
+        { q: "O que é MAC (Corda Média Aerodinâmica)?", a: "É a corda de uma asa retangular equivalente. A posição do CG é expressa em %MAC para determinar o equilíbrio e estabilidade da aeronave." },
+        { q: "Qual a autonomia mínima para jato no RBAC 121?", a: "Taxi + Trip (A p/ B) + Contingência (5 a 10% do Trip) + Alternado (B p/ C) + Reserva Final (30 min a 1500ft AGL)." },
+        { q: "Qual a autonomia mínima para turboélice no RBAC 121?", a: "Doméstico: A + B + C + 45 min. Internacional: A + B + C + 90 min (ou regra de 15% + 30 min, o que for menor)." },
+        { q: "O que compõe o BLOCK FUEL?", a: "Soma total: Taxi + Trip + Contingência + Alternado + Reserva Final + Combustível Extra." },
+        { q: "O que é VMCG e o que a influencia?", a: "Velocidade mínima de controle no solo. Varia com a tração (densidade/temp): quanto maior a tração, MAIOR a Vmcg." },
+        { q: "O que é VMCA?", a: "Velocidade mínima de controle no ar. Considera CG traseiro, potência máx e peso máx. Permite desvio de 20º de proa e 5º de bank." },
+        { q: "O que define a V1 (Velocidade de Decisão)?", a: "Referência para continuar ou abortar. V1 deve ser: Vmcg < V1 < VR ou Vmbe (velocidade máx de energia de frenagem)." },
+        { q: "O que é V2 (Takeoff Safety Speed)?", a: "Velocidade de segurança na decolagem atingida a 35ft (screen height), garantindo gradiente de subida com um motor inoperante." },
+        { q: "Diferença entre VX e VY?", a: "VX: Melhor ângulo (maior sobra de tração), menor distância horizontal. VY: Melhor razão (maior excesso de potência), menor tempo." },
+        { q: "O que são VEF e VMU?", a: "VEF: Velocidade de falha assumida do motor crítico. VMU: Velocidade mínima para a ACFT sair do solo sem bater a cauda e continuar segura." },
+        { q: "O que é VLOFF (Lift-off Speed)?", a: "Velocidade em que a aeronave sai do solo. Deve ser maior que a VMU (1.10 AEO / 1.05 OEI) e menor que a Vmax dos pneus." },
+        { q: "O que são TORA e TODA?", a: "TORA: Comprimento de pista disponível para rolagem. TODA: TORA + Clearway (distância total disponível até 35ft)." },
+        { q: "O que são ASDA e LDA?", a: "ASDA: TORA + Stopway (distância para acelerar e parar). LDA: Comprimento de pista disponível para o pouso." },
+        { q: "O que são Clearway e Stopway?", a: "Clearway: Área sob controle, livre de obstáculos para subida. Stopway: Área preparada para suportar a ACFT em caso de decolagem abortada." },
+        { q: "Como Clearway e Stopway afetam as distâncias?", a: "Clearway afeta TORA e TODA. Stopway afeta a ASDA (Accelerate and Stop Distance)." },
+        { q: "Qual o efeito na V1 comparando Stopway e Clearway?", a: "Stopway aumenta a ASDA, permitindo uma V1 maior (mais tempo para parar). Clearway permite atingir a screenheight mais tarde, possibilitando uma V1 menor (mais pista para acelerar após falha)." },
+        { q: "O que é RESA (Runway End Safety Area)?", a: "Área de escape simétrica após o fim da pista (120m a 300m) para reduzir danos em caso de ultrapassagem (overrun) no pouso ou decolagem rejeitada." },
+        { q: "Impactos de falha de motor em pista molhada?", a: "A Clearway é desconsiderada, a screenheight cai para 15ft e a V1 deve ser reduzida (afastada da VR) para garantir a capacidade de parada com menor atrito." },
+        { q: "Características de distância em decolagem normal (AEO)?", a: "A aeronave deve atingir a screenheight (35ft) e ainda possuir uma margem de 15% de pista à frente da distância total percorrida." },
+        { q: "Como calcular a distância de pouso fatorada (Seca e Molhada)?", a: "Seca: Distância real x 1.67. Molhada: Distância fatorada seca x 1.15 (ou Real x 1.67 x 1.15)." },
+        { q: "O que define o 1º e o 2º segmento de decolagem?", a: "1º: Da VLOF até 35ft (trem em retração). 2º: Dos 35ft até 400ft (segmento mais crítico, garante gradiente de subida em V2)." },
+        { q: "O que define o 3º e o 4º segmento de decolagem?", a: "3º: Nivelamento para aceleração e recolhimento de flaps. 4º: Da retração total de flaps até 1500ft (final da decolagem)." },
+        { q: "Quais os gradientes padrão de subida e arremetida?", a: "Subida padrão: 3,3%. Arremetida (Missed Approach) padrão: 2,5%." },
+        { q: "O que fazer se não puder cumprir o gradiente de arremetida monomotor?", a: "Não é obrigatório seguir o perfil da carta; deve-se executar o procedimento de contingência (EOSID) definido pela companhia." },
+        { q: "O que é Temperatura Assumida (FLEX/ATM)?", a: "Método para reduzir a tração do motor na decolagem informando ao FADEC uma temperatura maior que a real. Aumenta a vida útil do motor e economiza combustível." },
+        { q: "Quais são os 5 principais limitantes de performance na decolagem?", a: "1. FIELD (comprimento da pista); 2. CLIMB (gradiente nos segmentos); 3. OBSTACLE (obstáculos na rota); 4. TIRE SPEED (limite dos pneus); 5. BRAKE ENERGY (capacidade dos freios)." },
+        { q: "O que caracteriza uma pista contaminada?", a: "Quando mais de 25% da superfície tem lâmina d'água, neve ou slush acima de 3mm, ou presença de gelo/neve compactada." },
+        { q: "O que é o método ACN/PCN?", a: "Sistema de classificação de pavimentos para aeronaves > 5700kg. O PCN (pista) deve ser maior ou igual ao ACN (aeronave) para operação normal." },
+        { q: "O que indicam as 4 letras do código PCN?", a: "1ª: Tipo de piso (R-rígido/F-flexível); 2ª: Resistência do subleito; 3ª: Pressão máxima de pneus; 4ª: Método de avaliação (T-técnica/U-experimental)." },
+        { q: "O PCN pode ser extrapolado? Onde consta a regra?", a: "Sim, eventualmente. RBAC 153.103: permite-se exceder o peso em 5% (piso rígido) ou 10% (piso flexível), limitado a 5% das operações anuais." },
+        { q: "O que é um Last Minute Change (LMC)?", a: "Alterações de peso (passageiros, bagagem ou carga) feitas após o fechamento do manifesto de carga. Deve respeitar os limites de TOW e CG." },
+        { q: "Diferença entre De-Ice e Anti-Ice?", a: "Anti-Ice: evita a formação de gelo (ex: aquecimento ou fluidos). De-Ice: remove o gelo já formado (ex: botas pneumáticas ou banho de fluido Tipo 1)." },
+        { q: "Quais os 4 tipos de fluidos de degelo/antigelo?", a: "Tipo 1 (Degelo puro); Tipo 2 (Anti-ice, 2 etapas); Tipo 3 (Turboélice, degelo e anti-ice); Tipo 4 (Anti-ice puro, longa duração)." },
+        { q: "O que é o Holdover Time (HOT)?", a: "Tempo estimado em que a aeronave permanece protegida contra a formação de gelo após a aplicação de fluidos específicos." },
+        { q: "O que é ETOPS (ou EDTO)?", a: "Certificação que permite aeronaves voarem a mais de 60 min (ICAO) ou 75 min (ANAC) de um aeródromo adequado em condição monomotor." },
+        { q: "Quais os requisitos para ingressar em uma região ETOPS?", a: "Verificar se as alternativas ETOPS possuem meteorologia satisfatória durante todo o período previsto de operação + 1 hora de margem." },
+        { q: "Diferença entre Comprimento Físico, Efetivo e Retificado?", a: "Físico: real (TORA); Efetivo: corrigido para obstáculos; Retificado: corrigido para vento e slope (ex: vento de proa aumenta o comprimento retificado)." },
+        { q: "Como o vento e o slope afetam o comprimento retificado na decolagem?", a: "Vento de proa e slope negativo aumentam o comprimento retificado. Vento de cauda e slope positivo o diminuem." },
+        { q: "O que é o conceito PBN?", a: "Conceito que visa melhorar o espaço aéreo regulamentando os métodos de navegação RNAV/RNP. Envolve requisitos de navegação, comunicação e vigilância, excluindo procedimentos convencionais." },
+        { q: "Qual a diferença básica entre RNAV e RNP?", a: "Ambos são métodos de navegação de área. A diferença é que o RNP exige obrigatoriamente um sistema de monitoramento e alerta de performance a bordo, enquanto o RNAV não." },
+        { q: "Quais documentos tratam de PBN?", a: "Internacionalmente o ICAO DOC 9613 e, no Brasil, a IS 91-001 da ANAC." },
+        { q: "O que é SBAS (Satellite Based Augmentation System)?", a: "Sistema de melhoria da integridade do GPS que utiliza satélites geoestacionários para enviar correções de posição calculadas por estações de solo para a aeronave." },
+        { q: "O que é GBAS (Ground Based Augmentation System)?", a: "Sistema de melhoria onde as correções de posição são enviadas diretamente de estações terrestres para a aeronave, comum em aproximações de precisão (GLS)." },
+        { q: "O que é ABAS e qual o principal exemplo?", a: "Augmentação baseada nos sistemas da própria aeronave. O principal exemplo é o RAIM (Receiver Autonomous Integrity Monitoring), que verifica a qualidade dos sinais dos satélites." },
+        { q: "Quais as especificações RNP para cada fase do voo?", a: "RNP 4 (Oceânico); RNP 2 (En-route Continente); RNP 1 (Terminal); RNP 0.3 (Final de Aproximação)." },
+        { q: "Diferença entre RNP APCH e RNP AR APCH?", a: "RNP APCH: precisão padrão (1.0 inicial/0.3 final). RNP AR (Authorization Required): requer autorização especial, precisão de até 0.1 e permite segmentos curvos (RF - Radius to Fix)." },
+        { q: "O que é RVSM e qual sua faixa de altitude?", a: "Reduced Vertical Separation Minimum. Reduz a separação vertical de 2000ft para 1000ft entre os níveis FL290 e FL410 (inclusive)." },
+        { q: "Quais os equipamentos mínimos para operar em RVSM?", a: "2 sistemas independentes de altitude, 1 sistema de alerta de altitude, 1 piloto automático (manutenção de altitude) e Transponder operável." },
+        { q: "Em que situação o RVSM pode ser suspenso em voo?", a: "Em caso de turbulência severa ou falha de equipamentos críticos, onde a manutenção precisa da altitude de +/- 65ft não possa ser garantida." },
+        { q: "Quais os níveis disponíveis em espaço NÃO-RVSM?", a: "Apenas níveis ímpares com separação de 2000ft entre eles: FL290, 310, 330, 350, 370, 390 e 410." },
+             ];
+
+    function loadCarousel() {
+        const container = document.getElementById('carousel-items-container');
+        
+        flashcards.forEach((card, index) => {
+            const activeClass = index === 0 ? 'active' : '';
+            const itemHtml = `
+                <div class="carousel-item ${activeClass}">
+                    <div class="flashcard" onclick="toggleAnswer(this)">
+                        <div class="question-text">${card.q}</div>
+                        <div class="answer-text">${card.a}</div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += itemHtml;
+        });
+    }
+
+    function toggleAnswer(cardElement) {
+        const answer = cardElement.querySelector('.answer-text');
+        if (answer.style.display === 'block') {
+            answer.style.display = 'none';
+        } else {
+            answer.style.display = 'block';
+        }
+    }
+
+    // Reiniciar as respostas ao mudar de slide
+    const myCarousel = document.getElementById('flashcardCarousel');
+    myCarousel.addEventListener('slide.bs.carousel', function () {
+        const answers = document.querySelectorAll('.answer-text');
+        answers.forEach(ans => ans.style.display = 'none');
+    });
+
+    loadCarousel();
+</script>
+
+</body>
+</html>
